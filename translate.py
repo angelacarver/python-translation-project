@@ -92,7 +92,37 @@ def get_complement(sequence):
     >>> get_complement('AUGC')
     'UACG'
     """
-    pass
+    complementary_strand = ""
+    for base in sequence :
+        if base == "A" :
+            complementary_strand += "U"
+        
+        elif base == "a" :
+            complementary_strand += "U"
+
+        elif base == "U" :
+            complementary_strand += "A"
+
+        elif base == "u" :
+            complementary_strand += "A"
+
+        elif base == "G" :
+            complementary_strand += "C"
+
+        elif base == "g" :
+            complementary_strand +="C"
+
+        elif base == "C" :
+            complementary_strand += "G"
+
+        elif base == "c" :
+            complementary_strand += "G"
+
+        else :
+            print("Wrong input")
+            break
+
+    return complementary_strand
 
 def reverse_and_complement(sequence):
     """Get the reversed and complemented form of a `sequence` of nucleotides.
