@@ -2,6 +2,7 @@
 
 import sys
 
+joinedgenes = ""
 def translate_sequence(rna_sequence, genetic_code):
     """Translates a sequence of RNA into a sequence of amino acids.
 
@@ -28,7 +29,12 @@ def translate_sequence(rna_sequence, genetic_code):
     str
         A string of the translated amino acids.
     """
-    pass
+    n=3
+    split = [(rna_sequence[i:i+n]) for i in range(0, len(rna_sequence), n)]
+    genes = [genetic_code[codon] for codon in split]
+    s = ''.join(genes)
+    removed= s.split('*')
+    return removed
 
 def get_all_translations(rna_sequence, genetic_code):
     """Get a list of all amino acid sequences encoded by an RNA sequence.
@@ -124,6 +130,8 @@ def get_complement(sequence):
 
     return complementary_strand
 
+reverse_2 = "string"
+compstrand = ""
 def reverse_and_complement(sequence):
     """Get the reversed and complemented form of a `sequence` of nucleotides.
 
@@ -137,7 +145,10 @@ def reverse_and_complement(sequence):
     >>> reverse_and_complement('AUGC')
     'GCAU'
     """
-    pass
+    reve = get_reverse(sequence)
+    reve_comp = get_complement(reve)
+    return reve_comp
+
 
 def get_longest_peptide(rna_sequence, genetic_code):
     """Get the longest peptide encoded by an RNA sequence.
