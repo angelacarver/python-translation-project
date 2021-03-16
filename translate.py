@@ -2,6 +2,15 @@
 
 import sys
 
+def pop_next_codon(sequence):
+    """Removes and returns the first 3 bases.
+
+    Returns a tuple of a string of the first three bases and a string of the remaing sequence.
+    """
+    codon = sequence[0:3]  #takes the first three bases
+    remaining_seq = sequence[3:]   #the rest of the sequence
+    return codon, remaining_seq   #returns the two parts of the sequence
+
 joinedgenes = ""
 def translate_sequence(rna_sequence, genetic_code):
     """Translates a sequence of RNA into a sequence of amino acids.
@@ -29,12 +38,18 @@ def translate_sequence(rna_sequence, genetic_code):
     str
         A string of the translated amino acids.
     """
-    n=3
-    split = [(rna_sequence[i:i+n]) for i in range(0, len(rna_sequence), n)]
-    genes = [genetic_code[codon] for codon in split]
-    s = ''.join(genes)
-    removed= s.split('*')
-    return removed
+    rna_sequence = rna_sequence.upper() #makes it all upper case
+    amino_acid_list = []  #setting up variable
+    while True:
+        if len(rna_sequence) <3:
+            break #if the sequence is less than three bases long, returns empty string
+        codon, remaining_seq = pop_next_codon(rna_sequence) #this function pop_next_codon is defined earlier
+        rna_sequence = remaining_seq  #this is the sequence after the first three bases as seen in the function pop_next_codon
+        aa = genetic_code[codon]
+        if aa == "*":
+            break  #if the sequence contains stop codon, returns empty string
+        amino_acid_list.append(aa)
+    return "".join(amino_acid_list)
 
 def get_all_translations(rna_sequence, genetic_code):
     """Get a list of all amino acid sequences encoded by an RNA sequence.
@@ -67,7 +82,23 @@ def get_all_translations(rna_sequence, genetic_code):
         A list of strings; each string is an sequence of amino acids encoded by
         `rna_sequence`.
     """
-    pass
+    rna_sequence = rna_sequence.upper() #makes the sequence all capital letters
+    number_of_bases = len(rna_sequence) #gives the length of the rna sequence
+    last_codon_index = number_of_bases - 3 #shows where the last codon in rna_sequence starts
+    if last_codon_index < 0:   #tests whether rna_sequence is long enough to contain any codons
+        return[]  #if it's too short, return empty list
+    amino_acid_seq_list = []
+    for base_index in range(last_codon_index +1):  #gives number of bases to loop through, not sure why last_codon_index + 1
+        codon = rna_sequence[base_index: base_index +3] #indicates that each codon is three bases starting at the base_index
+        if codon == "AUG": #if start codon appears
+            aa_seq = translate_sequence(         #use the translation function we defined to translate sequence
+                rna_sequence = rna_sequence[base_index:],
+                genetic_code = genetic_code)
+            if aa_seq: #if aa_seq happens
+                amino_acid_seq_list.append(aa_seq) #add this to the list we defined earlier
+    return amino_acid_seq_list  #return the list of codons
+
+
 reverse = "string"
 reverse_upper = "string"
 def get_reverse(sequence):
@@ -177,8 +208,23 @@ def get_longest_peptide(rna_sequence, genetic_code):
         A string of the longest sequence of amino acids encoded by
         `rna_sequence`.
     """
-    pass
-
+    peptides = get_all_translations(rna_sequence = rna_sequence,
+        genetic_code = genetic_code) #use the get_all_translations function to translate the base rna_sequence
+    rev_comp_seq = reverse_and_complement(rna_sequence) #use the reverse_and_complement function that we defined to get the reverse/complement of rna_sequence
+    rev_comp_peptides = get_all_translations(rna_sequence = rev_comp_seq,
+        genetic_code = genetic_code) #use the get_all_translations function to translate the reverse/complement
+    peptides += rev_comp_peptides #add this translation to peptides variable
+    if not peptides:
+        return ""    #unsure what this section means
+    if len(peptides) <2:  #if doesn't contain a two codons, return the first amino acid
+        return peptides[0]
+    most_number_of_bases = -1
+    longest_peptide_index = -1
+    for peptide_index, aa_seq in enumerate(peptides):  #enumerate function tracks iterations of the loop
+        if len(aa_seq) > most_number_of_bases: #if more than -1 bases?
+            longest_peptide_index = peptide_index  #the counter is equal to the longest peptide index
+            most_number_of_bases = len(aa_seq)  #change the most number of bases so that it moves to the next index next time
+    return peptides[longest_peptide_index] #return the last peptide
 
 if __name__ == '__main__':
     genetic_code = {'GUC': 'V', 'ACC': 'T', 'GUA': 'V', 'GUG': 'V', 'ACU': 'T', 'AAC': 'N', 'CCU': 'P', 'UGG': 'W', 'AGC': 'S', 'AUC': 'I', 'CAU': 'H', 'AAU': 'N', 'AGU': 'S', 'GUU': 'V', 'CAC': 'H', 'ACG': 'T', 'CCG': 'P', 'CCA': 'P', 'ACA': 'T', 'CCC': 'P', 'UGU': 'C', 'GGU': 'G', 'UCU': 'S', 'GCG': 'A', 'UGC': 'C', 'CAG': 'Q', 'GAU': 'D', 'UAU': 'Y', 'CGG': 'R', 'UCG': 'S', 'AGG': 'R', 'GGG': 'G', 'UCC': 'S', 'UCA': 'S', 'UAA': '*', 'GGA': 'G', 'UAC': 'Y', 'GAC': 'D', 'UAG': '*', 'AUA': 'I', 'GCA': 'A', 'CUU': 'L', 'GGC': 'G', 'AUG': 'M', 'CUG': 'L', 'GAG': 'E', 'CUC': 'L', 'AGA': 'R', 'CUA': 'L', 'GCC': 'A', 'AAA': 'K', 'AAG': 'K', 'CAA': 'Q', 'UUU': 'F', 'CGU': 'R', 'CGC': 'R', 'CGA': 'R', 'GCU': 'A', 'GAA': 'E', 'AUU': 'I', 'UUG': 'L', 'UUA': 'L', 'UGA': '*', 'UUC': 'F'}
